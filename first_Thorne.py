@@ -1,0 +1,1 @@
+print("Yapmak sarmayı seviyorum :)")
