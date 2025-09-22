@@ -1,0 +1,72 @@
+# This script creates a GUI using Tkinter to control an LED on a Raspberry Pi.
+# The LED will turn on as long as the button is pressed and turn off when released.
+
+import tkinter as tk
+from gpiozero import LED
+
+# --- Hardware Connections ---
+# Connect the LED to GPIO 18 and a current-limiting resistor, then to GND.
+
+try:
+    # Create an LED object for GPIO 18, as you requested.
+    led = LED(18)
+    print("GPIO Zero LED object created. Ready to control GPIO 18.")
+except Exception as e:
+    print(f"Warning: Could not initialize GPIO Zero. The LED control will be non-functional. Error: {e}")
+    # Create a dummy LED class for testing on non-Pi systems.
+    class DummyLED:
+        def on(self):
+            print("Dummy LED: ON")
+        def off(self):
+            print("Dummy LED: OFF")
+    led = DummyLED()
+
+# --- Tkinter GUI Functions ---
+
+def turn_led_on(event):
+    """Turns the LED on when the button is pressed."""
+    led.on()
+    print("Button Pressed: LED ON")
+    
+def turn_led_off(event):
+    """Turns the LED off when the button is released."""
+    led.off()
+    print("Button Released: LED OFF")
+
+# --- Tkinter GUI Setup ---
+
+# Create the main window.
+root = tk.Tk()
+root.title("LED Control")
+root.geometry("300x150")
+root.configure(bg="#2c3e50")
+
+# Create a single button to control the LED.
+control_button = tk.Button(
+    root,
+    text="Press and Hold to Turn LED ON",
+    bg="#3498db",
+    fg="white",
+    font=("Helvetica", 12, "bold"),
+    width=30,
+    height=3,
+    relief="raised",
+    bd=3,
+)
+control_button.pack(pady=30)
+
+# Bind the mouse button press and release events to the control functions.
+# <Button-1> is the left mouse button press.
+control_button.bind("<Button-1>", turn_led_on)
+# <ButtonRelease-1> is the left mouse button release.
+control_button.bind("<ButtonRelease-1>", turn_led_off)
+
+# Start the Tkinter event loop.
+root.mainloop()
+
+# Cleanup on close.
+try:
+    led.close()
+    print("GPIO Zero LED object closed.")
+except AttributeError:
+    pass # Dummy LED has no close() method.
